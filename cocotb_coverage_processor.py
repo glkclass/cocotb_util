@@ -1,13 +1,18 @@
 # CocoTB. Base TestBench class
 
+import importlib
+
 import logging
 from typing import Callable
 
 from cocotb.log import SimLog
-from cocotb_coverage.coverage import coverage_section, coverage_db
+
+cocotb_coverage = importlib.import_module('cocotb-coverage.cocotb_coverage.coverage')
+coverage_db = cocotb_coverage.coverage_db
+coverage_section = cocotb_coverage.coverage_section
 
 from cocotb_util.cocotb_transaction import Transaction
-from cocotb_util.cocotb_coverage import CoverPoint, CoverCross
+# from cocotb_util.cocotb_coverage import CoverPoint, CoverCross
 
 from cocotb_util.cocotb_util import timeout
 

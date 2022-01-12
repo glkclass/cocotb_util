@@ -2,13 +2,14 @@
 
 import logging
 from functools import wraps
+import importlib
 
 from cocotb.log import SimLog
-from cocotb_coverage.coverage import coverage_db
 
-from cocotb_coverage.coverage import CoverPoint as CocoTBCoverPoint
-from cocotb_coverage.coverage import CoverCross as CocoTBCoverCross
-
+cocotb_coverage = importlib.import_module('cocotb-coverage.cocotb_coverage.coverage')
+coverage_db = cocotb_coverage.coverage_db
+CocoTBCoverPoint = cocotb_coverage.CoverPoint
+CocoTBCoverCross = cocotb_coverage.CoverCross
 
 class CoverPoint(CocoTBCoverPoint):
     def __new__(cls, name, *args, **kwargs):
