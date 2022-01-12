@@ -1,8 +1,8 @@
 # CocoTB util
 import os
 import time
-
 import logging
+import numpy
 
 from cocotb.clock import Clock
 from cocotb.triggers import Timer
@@ -14,6 +14,13 @@ from cocotb.result import TestSuccess
 log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler())
 log.setLevel(logging.INFO)
+
+
+def init_random_seed():
+    """Initialize 'numpy' lib seed. 'random' lib seed is initialized inside 'cocotb' lib"""
+    random_seed = os.environ.get('RANDOM_SEED', None)
+    if random_seed is not None:
+        numpy.random.seed(int(random_seed))
 
 
 def set_starttime():

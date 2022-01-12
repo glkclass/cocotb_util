@@ -30,7 +30,6 @@ class BusMonitor(CocoTBBusMonitor):
 
     def add_expected(self, trx):
         """Store expected receive transactions to be checked in scoreboard"""
-        self.log.info(f'Add Trx:{trx} ')
         self.expected.append(trx)
 
 
