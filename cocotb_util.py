@@ -3,6 +3,7 @@ import os
 import time
 import logging
 import numpy
+from functools import wraps
 
 from cocotb.clock import Clock
 from cocotb.triggers import Timer
@@ -12,7 +13,7 @@ from cocotb.result import TestSuccess
 # from cocotb_util.cocotb_testbench import TestBench
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler())
+# log.addHandler(logging.StreamHandler())
 log.setLevel(logging.INFO)
 
 
@@ -39,20 +40,31 @@ def static_vars(**kwargs):
 
 def timeout(func):
     """ Timeout decorator.
-        Stop test when timeout achieved (appropriate env vars should be set up at the test start point)"""
+        1. Print test time to log every minite
+        2. Stop test when 'timeout' achieved
+        (appropriate env vars should be set up at the 'test_start_point')"""
+    @wraps(func)
     def inner(*args, **kwargs):
         duration_hours = os.environ.get('COCOTB_TIMEOUT_HOURS', None)
         start_time_sec = os.environ.get('COCOTB_START_TIME_SECONDS', None)
 
-        if duration_hours is not None and start_time_sec is not None:
+        if start_time_sec is not None:
             run_time_sec = int(time.time()) - int(start_time_sec)
+            if 0 == run_time_sec % 60:
+                hours = int(run_time_sec / 3600)
+                mins = int((run_time_sec % 3600) / 60)
+                if hours == 0 and mins > 0:
+                    log.info(f'Run time: {mins}m')
+                else:
+                    log.info(f'Run time: {hours}h {mins}m')
 
-            if run_time_sec > int(duration_hours) * 3600:
-                log.warning(f'Test timeout achieved. Run time: {run_time_sec}')
-                # report final coverage after termination if use with TestBench() member
-                if len(args) > 0 and getattr(args[0], 'report_coverage_final', None) is not None:
-                    args[0].report_coverage_final()
-                raise TestSuccess
+                if duration_hours is not None:
+                    if run_time_sec > int(duration_hours) * 3600:
+                        log.warning(f'Test timeout achieved. Run time: {run_time_sec}')
+                        # report final coverage after termination if use with TestBench() member
+                        if len(args) > 0 and getattr(args[0], 'report_coverage_final', None) is not None:
+                            args[0].report_coverage_final()
+                        raise TestSuccess
         return func(*args, **kwargs)
     return inner
 
