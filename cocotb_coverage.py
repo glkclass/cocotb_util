@@ -26,7 +26,7 @@ class CoverPoint(CocoTBCoverPoint):
                 self.log.setLevel(logging.INFO)
 
             self.log.debug(f'Create CoverPoint: {name}')
-            self._covered_bins = []  # to fill with covered bins
+            self._covered_bins = {}  # to fill with covered bins
 
     def __call__(self, f):
         """Collect coverage decorator. Call super func + custom func"""
@@ -44,7 +44,7 @@ class CoverPoint(CocoTBCoverPoint):
         """Update list of covered bins"""
         for hit in self.new_hits:
             if self.detailed_coverage[hit] == self._at_least:
-                self._covered_bins.append(hit)
+                self._covered_bins[hit] = 0
                 self.log.debug(f"Covered bins: {self._covered_bins}")
 
     @property
@@ -82,7 +82,7 @@ class CoverCross(CocoTBCoverCross):
             self._covered_bins = {}
             self._bin_cnt = {}
             for cp_name in self._items:
-                self._covered_bins[cp_name] = []  # to fill with covered bins
+                self._covered_bins[cp_name] = {}  # to fill with covered bins
                 self._bin_cnt[cp_name] = {}  # for every cp prepare dict with {cp_bin: num_child_ccp_bins}
             # for every cp bin calc num of descendant ccp bins
             for ccp_bin in self.detailed_coverage:
@@ -139,8 +139,8 @@ class CoverCross(CocoTBCoverCross):
                     cp_name = self._items[i]
                     self._bin_cnt[cp_name][cp_bin] -= 1
                     if self._bin_cnt[cp_name][cp_bin] == 0:
-                        self._covered_bins[cp_name].append(cp_bin)
-                        self.log.warning(f"Covered bins: {cp_name} - {self._covered_bins[cp_name]}")
+                        self._covered_bins[cp_name][cp_bin] = 0
+                        self.log.info(f"Covered bins: {cp_name}: {self._covered_bins[cp_name].keys()}")
 
     @property
     def covered_bins(self):
