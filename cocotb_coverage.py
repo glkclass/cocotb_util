@@ -140,7 +140,9 @@ class CoverCross(CocoTBCoverCross):
                     self._bin_cnt[cp_name][cp_bin] -= 1
                     if self._bin_cnt[cp_name][cp_bin] == 0:
                         self._covered_bins[cp_name][cp_bin] = 0
+                        self.log.info('')
                         self.log.info(f"Covered bins: {cp_name}: {self._covered_bins[cp_name].keys()}")
+                        self.log.info('')
 
     @property
     def covered_bins(self):

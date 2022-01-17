@@ -43,21 +43,27 @@ def timeout(func):
         1. Print test time to log every minite
         2. Stop test when 'timeout' achieved
         (appropriate env vars should be set up at the 'test_start_point')"""
-    @wraps(func)
-    def inner(*args, **kwargs):
-        duration_hours = os.environ.get('COCOTB_TIMEOUT_HOURS', None)
-        start_time_sec = os.environ.get('COCOTB_START_TIME_SECONDS', None)
+    cnt = 0
+    duration_hours = os.environ.get('COCOTB_TIMEOUT_HOURS', None)
+    start_time_sec = os.environ.get('COCOTB_START_TIME_SECONDS', None)
 
-        if start_time_sec is not None:
-            run_time_sec = int(time.time()) - int(start_time_sec)
-            if 0 == run_time_sec % 60:
+    def inner(*args, **kwargs):
+        nonlocal cnt
+        cnt += 1
+        if cnt == 10:
+            cnt = 0
+            if start_time_sec is not None:
+                run_time_sec = int(time.time()) - int(start_time_sec)
+                # report current test time
                 hours = int(run_time_sec / 3600)
                 mins = int((run_time_sec % 3600) / 60)
-                if hours == 0 and mins > 0:
+                log.info('')
+                if hours == 0:
                     log.info(f'Run time: {mins}m')
                 else:
                     log.info(f'Run time: {hours}h {mins}m')
-
+                log.info('')
+                # terminate test if test time out
                 if duration_hours is not None:
                     if run_time_sec > int(duration_hours) * 3600:
                         log.warning(f'Test timeout achieved. Run time: {run_time_sec}')
